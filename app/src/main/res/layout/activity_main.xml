@@ -6,11 +6,9 @@
     android:layout_height="match_parent"
     tools:context="com.dimazatolokin.livenews.view.MainActivity">
 
-    <Button
-        android:id="@+id/btnShow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="show"/>
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerNewsMain"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 </RelativeLayout>

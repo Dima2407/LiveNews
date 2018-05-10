@@ -1,6 +1,7 @@
 package com.dimazatolokin.livenews;
 
 import android.app.Application;
+import android.content.res.Resources;
 
 import com.dimazatolokin.livenews.model.DbManager;
 import com.dimazatolokin.livenews.model.net.NetworkService;

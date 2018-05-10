@@ -60,7 +60,7 @@ public class NetworkService {
     }
 
     public void getNews() {
-        api.getNews().enqueue(new Callback<NewsResponse>() {
+        api.getNewsUa().enqueue(new Callback<NewsResponse>() {
             @Override
             public void onResponse(Call<NewsResponse> call, Response<NewsResponse> response) {
                 Log.i(TAG, "onResponse: ");
