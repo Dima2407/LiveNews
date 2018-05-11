@@ -4,21 +4,26 @@ import android.util.Log;
 
 import com.dimazatolokin.livenews.LiveNewsApp;
 import com.dimazatolokin.livenews.model.models.Article;
+import com.dimazatolokin.livenews.model.net.eventsBus.NextNewSuccessEvent;
+import com.dimazatolokin.livenews.model.net.eventsBus.RxBus;
 import com.dimazatolokin.livenews.model.net.response.NewsResponse;
 import com.dimazatolokin.livenews.util.Constans;
 
 import java.io.IOException;
+import java.util.List;
 
-import io.realm.Realm;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by dimazatolokin on 04.05.18.
@@ -54,26 +59,47 @@ public class NetworkService {
                 .baseUrl(Constans.BASE_URL)
                 .client(okHttpBuilder.build())
                 .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
 
         api = retrofit.create(RequestApi.class);
     }
 
     public void getNews() {
-        api.getNewsUa().enqueue(new Callback<NewsResponse>() {
-            @Override
-            public void onResponse(Call<NewsResponse> call, Response<NewsResponse> response) {
-                Log.i(TAG, "onResponse: ");
-                for (Article article : response.body().getArticles()) {
-                    LiveNewsApp.getInstanse().getDbManager().save(article);
-                }
-            }
 
-            @Override
-            public void onFailure(Call<NewsResponse> call, Throwable t) {
-                Log.i(TAG, "onFailure: " + t);
-            }
-        });
+        try {
+
+            Observable<NewsResponse> newsUa = api.getNewsUa();
+            newsUa.subscribeOn(Schedulers.io())
+                    .observeOn(Schedulers.io())
+                    .flatMap(new Func1<NewsResponse, Observable<Article>>() {
+                        @Override
+                        public Observable<Article> call(NewsResponse newsResponse) {
+                            List<Article> articles = newsResponse.getArticles();
+                            return Observable.from(articles);
+                        }
+                    })
+                    .doOnNext(new Action1<Article>() {
+                        @Override
+                        public void call(Article article) {
+                            LiveNewsApp.getInstanse().getDbManager().save(article);
+                        }
+                    })
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnNext(new Action1<Article>() {
+                        @Override
+                        public void call(Article article) {
+                            RxBus.getInstance().post(new NextNewSuccessEvent());
+                        }
+                    })
+                    .doOnError(throwable -> {
+                        throwable.printStackTrace();
+                    })
+                    .subscribe();
+        } catch (Exception e) {
+            Log.e(TAG, "getNews: ", e);
+        }
+
     }
 
 }

@@ -3,6 +3,7 @@ package com.dimazatolokin.livenews.model.models;
 import com.google.gson.annotations.SerializedName;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by dimazatolokin on 04.05.18.
@@ -22,6 +23,7 @@ public class Article extends RealmObject{
     private String url;
     @SerializedName("urlToImage")
     private String urlToImage;
+    @PrimaryKey
     @SerializedName("publishedAt")
     private String publishedAt;
 

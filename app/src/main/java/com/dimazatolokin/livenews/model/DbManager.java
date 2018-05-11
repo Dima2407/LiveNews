@@ -17,7 +17,7 @@ public class DbManager {
     public void save(RealmObject object) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        realm.insert(object);
+        realm.copyToRealmOrUpdate(object);
         realm.commitTransaction();
         realm.close();
     }
@@ -25,5 +25,10 @@ public class DbManager {
     public List<Article> getArticles() {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(Article.class).findAll();
+    }
+
+    public RealmResults<Article> getRealmResultArticles() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Article.class).findAllAsync();
     }
 }
