@@ -1,5 +1,7 @@
 package com.dimazatolokin.livenews.model.models;
 
+import android.text.TextUtils;
+
 import com.google.gson.annotations.SerializedName;
 
 import io.realm.RealmObject;
@@ -81,5 +83,21 @@ public class Article extends RealmObject{
 
     public void setPublishedAt(String publishedAt) {
         this.publishedAt = publishedAt;
+    }
+/*
+    public String getPrettyTime() {
+        if (TextUtils.isEmpty(getPublishedAt())) {
+            return "";
+        }
+        String[] strings = getPublishedAt().split("T");
+        String[] dates = strings[0].split("-");
+        int indexTime = strings[1].lastIndexOf(":");
+        String time = strings[1].substring(0, indexTime);
+        String date = dates[2].concat(".").concat(dates[1]).concat(".").concat(dates[0]);
+        return time.concat("  ").concat(date);
+    }*/
+
+    public String getSourceName() {
+        return getSource().getName();
     }
 }
